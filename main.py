@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMessageBox
 from ui.main_ui import SchulteUI
-from core.grid_gen import generate_grid
+from core.grid_gen import generate_grid, generate_letter_grid
 from core.timer import SchulteTimer
 from core.check import ClickChecker
 
@@ -12,7 +12,7 @@ class SchulteGame:
         self.timer = SchulteTimer()
         self.checker = None
         self.grid = None
-        self.n = 3
+        self.n = 3  # 默认3×3
         self.bind_events()
 
     def bind_events(self):
@@ -27,24 +27,39 @@ class SchulteGame:
 
     def start_game(self):
         self.reset_game()
-        self.grid = generate_grid(self.n)
+        current_mode = self.ui.get_current_mode()  # v1.1获取当前模式
+        total = self.n * self.n
+
+        # 按模式生成对应网格
+        if current_mode == "number":
+            self.grid = generate_grid(self.n)
+        else:
+            self.grid = generate_letter_grid(self.n)
+        
         self.ui.create_grid_buttons(self.grid, self.n)
-        # 绑定网格按钮点击事件
+        # 初始化校验器，传入模式
+        self.checker = ClickChecker(total, mode=current_mode)
+        self.ui.result_label.setText("训练结果：计时中...")
+
+        # 绑定按钮点击事件（兼容数字/字母）
         for i in range(self.ui.grid_layout.count()):
             row_layout = self.ui.grid_layout.itemAt(i).layout()
             for j in range(row_layout.count()):
                 btn = row_layout.itemAt(j).widget()
                 btn.clicked.connect(lambda _, b=btn: self.click_grid(b))
-        self.checker = ClickChecker(self.n * self.n)
-        self.ui.result_label.setText("训练结果：计时中...")
 
     def click_grid(self, btn):
-        click_num = int(btn.text())
-        is_correct, is_finish = self.checker.check(click_num)
+        click_content = btn.text().strip()
+        current_mode = self.ui.get_current_mode()
+        is_correct, is_finish = self.checker.check(click_content)
+
         if not is_correct:
-            QMessageBox.warning(self.ui, "提示", "顺序错误，请点击当前目标数字！")
+            tip = "顺序错误，请点击当前目标数字！" if current_mode=="number" else "顺序错误，请点击当前目标字母！"
+            QMessageBox.warning(self.ui, "提示", tip)
             return
-        if click_num == 1:
+        
+        # 计时逻辑（原有功能，保留）
+        if (current_mode=="number" and click_content=="1") or (current_mode=="letter" and click_content=="a"):
             self.timer.start()
         if is_finish:
             cost_time = self.timer.stop()
@@ -53,7 +68,9 @@ class SchulteGame:
         btn.setEnabled(False)
 
     def show_result(self, cost_time):
-        if self.n ==5:
+        """结果展示（5×5仅数字模式评级，字母模式无评级，合理适配）"""
+        current_mode = self.ui.get_current_mode()
+        if current_mode == "number" and self.n ==5:
             if cost_time <=30:
                 grade = "优秀"
             elif cost_time <=40:
@@ -64,7 +81,9 @@ class SchulteGame:
                 grade = "需加强"
             result_text = f"训练结果：{cost_time}秒（{grade}）"
         else:
-            result_text = f"训练结果：{cost_time}秒"
+            mode_name = "数字模式" if current_mode=="number" else "字母模式"
+            result_text = f"训练结果（{mode_name}）：{cost_time}秒"
+        
         self.ui.result_label.setText(result_text)
         QMessageBox.information(self.ui, "完成", f"训练完成！总用时：{cost_time}秒")
 
