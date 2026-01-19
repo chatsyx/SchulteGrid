@@ -24,7 +24,7 @@
 本地需安装 Python 3.8+ 版本（安装时务必勾选「Add Python to PATH」，避免后续配置环境变量）
 
 ### 部署步骤
-1.  克隆仓库（替换为你的GitHub仓库HTTPS地址【需替换，必填】）
+1.  克隆仓库（替换为你的GitHub仓库HTTPS地址）
 ```bash
 git clone https://github.com/chatsyx/SchulteGrid.git
 进入项目根目录（仓库默认部署在桌面，直接执行以下命令即可精准定位，无需手动找路径）
