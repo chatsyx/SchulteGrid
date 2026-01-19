@@ -1,5 +1,4 @@
 # SchulteGrid
-<<<<<<< HEAD
 基于 Python+PyQt6 开发的轻量级舒尔特方格注意力训练工具，桌面部署直接可用，支持多规格网格切换、精准计时与标准评级，无冗余依赖，适配Windows系统，开源供个人学习与自用。
 
 ## 项目版本
@@ -86,6 +85,3 @@ plaintext
 git add .
 git commit -m "docs: 补全v1.0版本README.md，完善部署/使用/排障说明"
 git push origin main
-=======
-基于Python+PyQt6开发的舒尔特方格注意力训练工具，支持多规格网格，内置计时与评级，轻量跨平台
->>>>>>> 7e418ad14b205b15d3661c19b90d63ea767f441f
